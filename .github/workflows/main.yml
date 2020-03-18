@@ -1,0 +1,74 @@
+name: main
+
+on:
+  push:
+    branches:
+      - master
+      - "[0-9]+.[0-9]+.x"
+    tags:
+      - "*"
+
+  pull_request:
+    branches:
+      - master
+      - "[0-9]+.[0-9]+.x"
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [
+          "ubuntu-py27",
+          "ubuntu-py36",
+          "ubuntu-py37",
+          "ubuntu-py38",
+          "linting",
+          "packaging",
+        ]
+        os: [
+          "ubuntu-latest",
+        ]
+
+        include:
+
+          - name: "ubuntu-py27"
+            python: "2.7"
+            os: ubuntu-latest
+            tox_env: "py27"
+          - name: "ubuntu-py36"
+            python: "3.6"
+            os: ubuntu-latest
+            tox_env: "py36"
+          - name: "ubuntu-py37"
+            python: "3.7"
+            os: ubuntu-latest
+            tox_env: "py37"
+          - name: "ubuntu-py38"
+            python: "3.8"
+            os: ubuntu-latest
+            tox_env: "py38"
+
+          - name: "linting"
+            python: "3.7"
+            os: ubuntu-latest
+            tox_env: "linting"
+          - name: "packaging"
+            python: "3.7"
+            os: ubuntu-latest
+            tox_env: "packaging"
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox
+      - name: Test
+        run: "tox -e ${{ matrix.tox_env }}"
