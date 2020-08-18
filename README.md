@@ -2,6 +2,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/pytest-plus.svg)](https://pypi.org/project/pytest-plus)
 [![Python versions](https://img.shields.io/pypi/pyversions/pytest-plus.svg)](https://pypi.org/project/pytest-plus)
+![CI](https://github.com/pytest-dev/pytest-plus/workflows/main/badge.svg)
 [![Python Black Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 
 This plugin aims to be used to host multiple pytest extensions that meet the
@@ -29,7 +30,7 @@ tests. Also, this feature makes no sense if you try to mention a specific test.
 ## Links
 
 * [MIT](http://opensource.org/licenses/MIT)
-* [file an issue](https://github.com/pycontribs/pytest-plus/issues)
+* [file an issue](https://github.com/pytest-dev/pytest-plus/issues)
 * [pytest](https://github.com/pytest-dev/pytest)
 * [tox](https://tox.readthedocs.io/en/latest/)
 * [pip](https://pypi.org/project/pip/)
