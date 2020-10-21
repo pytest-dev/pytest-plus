@@ -1,17 +1,18 @@
 name: tox
 
 on:
-  push:
-    branches:
-      - master
-      - "[0-9]+.[0-9]+.x"
-    tags:
-      - "*"
-
+  create:  # is used for publishing to PyPI and TestPyPI
+    tags:  # any tag regardless of its name, no branches
+  push:  # only publishes pushes to the main branch to TestPyPI
+    branches:  # any branch but not tag
+      - >-
+        **
+    tags-ignore:
+      - >-
+        **
   pull_request:
-    branches:
-      - master
-      - "[0-9]+.[0-9]+.x"
+  schedule:
+    - cron: 1 0 * * *  # Run daily at 0:01 UTC
 
 jobs:
   build:
