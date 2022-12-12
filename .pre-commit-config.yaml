@@ -1,20 +1,19 @@
 ---
+ci:
+  exclude:
+    - pip-tools
 repos:
   - repo: https://github.com/PyCQA/doc8.git
-    rev: 0.8.1rc3
+    rev: v1.1.0
     hooks:
       - id: doc8
-  - repo: https://github.com/markdownlint/markdownlint
-    rev: v0.9.0
-    hooks:
-      - id: markdownlint
   - repo: https://github.com/python/black
-    rev: 19.10b0
+    rev: 22.12.0
     hooks:
       - id: black
         language_version: python3
   - repo: https://github.com/pre-commit/pre-commit-hooks.git
-    rev: v2.5.0
+    rev: v4.4.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
@@ -23,21 +22,21 @@ repos:
       - id: check-executables-have-shebangs
       - id: check-merge-conflict
       - id: debug-statements
-  - repo: https://gitlab.com/pycqa/flake8.git
-    rev: 3.7.9
+  - repo: https://github.com/pycqa/flake8.git
+    rev: 6.0.0
     hooks:
       - id: flake8
         additional_dependencies:
           - flake8-black
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.20.0
+    rev: v1.28.0
     hooks:
       - id: yamllint
         files: \.(yaml|yml)$
         types: [file, yaml]
         entry: yamllint --strict
   - repo: https://github.com/codespell-project/codespell.git
-    rev: v1.16.0
+    rev: v2.2.2
     hooks:
       - id: codespell
         name: codespell
@@ -48,3 +47,23 @@ repos:
         args: []
         require_serial: false
         additional_dependencies: []
+  - repo: https://github.com/jazzband/pip-tools
+    rev: 6.12.1
+    hooks:
+      - id: pip-compile
+        entry: pip-compile --resolver=backtracking -q --no-annotate --output-file=requirements.txt pyproject.toml --extra docs --extra test --strip-extras --unsafe-package ansible-core
+        language: python
+        files: ^(requirements\.txt|pyproject\.toml)$
+        alias: deps
+        language_version: "3.9" # minimal we support officially
+        additional_dependencies:
+          - pip>=22.3.1
+      - id: pip-compile
+        entry: pip-compile --resolver=backtracking -q --no-annotate --output-file=requirements.txt pyproject.toml --extra docs --extra test --strip-extras --unsafe-package ansible-core --upgrade
+        language: python
+        files: ^(requirements\.txt|pyproject\.toml)$
+        alias: up
+        stages: [manual]
+        language_version: "3.9" # minimal we support officially
+        additional_dependencies:
+          - pip>=22.3.1
