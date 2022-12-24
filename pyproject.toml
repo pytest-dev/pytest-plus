@@ -1,8 +1,62 @@
 [build-system]
 requires = [
-  "setuptools >= 41.0.0",
-  "setuptools_scm >= 1.15.0",
-  "setuptools_scm_git_archive >= 1.0",
-  "wheel",
+  "setuptools >= 63.0.0", # required by pyproject+setuptools_scm integration
+  "setuptools_scm[toml] >= 7.0.5", # required for "no-local-version" scheme
+
 ]
 build-backend = "setuptools.build_meta"
+
+[project]
+# https://peps.python.org/pep-0621/#readme
+requires-python = ">=3.8"
+dynamic = ["version"]
+name = "pytest-plus"
+description = "PyTest Plus Plugin :: extends pytest functionality"
+readme = "README.md"
+authors = [{ "name" = "Sorin Sbarnea", "email" = "sorin.sbarnea@gmail.com" }]
+maintainers = [
+  { "name" = "Sorin Sbarnea", "email" = "sorin.sbarnea@gmail.com" }
+]
+license = { text = "MIT" }
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Framework :: Pytest",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: Software Development :: Testing",
+  "Topic :: System :: Systems Administration",
+  "Topic :: Utilities",
+]
+keywords = ["testing", "pytest", "plugin"]
+dependencies = ["pytest>=6.0.1", "more_itertools>=8.4.0"]
+
+[project.urls]
+homepage = "https://github.com/pytest-dev/pytest-plus"
+repository = "https://github.com/pytest-dev/pytest-plus"
+changelog = "https://github.com/pytest-dev/pytest-plus/releases"
+
+[project.optional-dependencies]
+test = ["coverage>=7.0.0", "pytest-html"]
+
+[project.entry-points.pytest11]
+plus = "pytest_plus"
+
+[tool.pytest.ini_options]
+addopts = "-p no:flaky"
+
+[tool.setuptools_scm]
+local_scheme = "no-local-version"
+write_to = "src/pytest_plus/_version.py"
