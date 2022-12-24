@@ -24,7 +24,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         if passed != req_passed:
             terminalreporter.write_line(
                 "ERROR: {} passed test but expected number was {}. "
-                " If that is expected please update PYTEST_REQPASS value for the failed job in zuul.d/layout.yaml file.".format(
+                " If that is expected please update PYTEST_REQPASS value for the failed job.".format(
                     passed, req_passed
                 )
             )
