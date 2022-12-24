@@ -8,7 +8,6 @@ attrs==22.1.0
 coverage==7.0.0
 exceptiongroup==1.0.4
 iniconfig==1.1.1
-more-itertools==9.0.0
 packaging==22.0
 pluggy==1.0.0
 py==1.11.0

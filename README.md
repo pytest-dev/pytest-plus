@@ -8,7 +8,6 @@
 This plugin aims to be used to host multiple basic pytest extensions that meet
 the following criteria:
 
-- Keep py36 compatibility
 - Downgrade gracefully, meaning that if the plugin is removed, you will still
   be able to run pytest
 

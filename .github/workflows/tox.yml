@@ -30,6 +30,7 @@ jobs:
         id: generate_matrix
         uses: coactions/matrix@main
         with:
+          min_python: "3.9"
           other_names: |
             lint
             pkg
