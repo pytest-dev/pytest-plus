@@ -8,8 +8,8 @@
 This plugin aims to be used to host multiple basic pytest extensions that meet
 the following criteria:
 
-* Keep py36 compatibility
-* Downgrade gracefully, meaning that if the plugin is removed, you will still
+- Keep py36 compatibility
+- Downgrade gracefully, meaning that if the plugin is removed, you will still
   be able to run pytest
 
 ## PYTEST_REQPASS
@@ -20,7 +20,7 @@ not exactly 123, pytest will return exit code 1.
 
 This feature is aimed for CI usage in order to prevent accidental skipping of
 some tests. We do expect users to define this variable within their own CI job
-definitions.  The number of tests executed is likely to be dependent on the CI
+definitions. The number of tests executed is likely to be dependent on the CI
 job.
 
 We discourage defining this inside places like `tox.ini` because when a
@@ -29,9 +29,9 @@ tests. Also, this feature makes no sense if you try to mention a specific test.
 
 ## Links
 
-* [MIT](http://opensource.org/licenses/MIT)
-* [file an issue](https://github.com/pytest-dev/pytest-plus/issues)
-* [pytest](https://github.com/pytest-dev/pytest)
-* [tox](https://tox.readthedocs.io/en/latest/)
-* [pip](https://pypi.org/project/pip/)
-* [PyPI](https://pypi.org/project)
+- [MIT](http://opensource.org/licenses/MIT)
+- [file an issue](https://github.com/pytest-dev/pytest-plus/issues)
+- [pytest](https://github.com/pytest-dev/pytest)
+- [tox](https://tox.readthedocs.io/en/latest/)
+- [pip](https://pypi.org/project/pip/)
+- [PyPI](https://pypi.org/project)
