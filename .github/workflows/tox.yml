@@ -20,30 +20,30 @@ env:
   PY_COLORS: 1
 
 jobs:
+  pre:
+    name: pre
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.generate_matrix.outputs.matrix }}
+    steps:
+      - name: Determine matrix
+        id: generate_matrix
+        uses: coactions/matrix@main
+        with:
+          other_names: |
+            lint
+            pkg
+            devel
   build:
-    name: ${{ matrix.name || matrix.tox_env }}
+    name: ${{ matrix.name || matrix.passed_name || '?' }}
+    needs: pre
     runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
     defaults:
       run:
         shell: ${{ matrix.shell || 'bash'}}
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - tox_env: lint
-          - name: pkg
-            tox_env: pkg
-          - name: py38
-            tox_env: py38,py38-devel
-            python-version: 3.8
-          - name: py39
-            tox_env: py39,py39-devel
-            python-version: 3.9
-          - tox_env: py310
-            python-version: "3.10"
-          - name: py311
-            tox_env: py311,py311-devel
-            python-version: "3.11"
+      matrix: ${{ fromJson(needs.pre.outputs.matrix) }}
     env:
       PYTEST_REQPASS: 1
 
@@ -53,17 +53,17 @@ jobs:
           fetch-depth: 0 # needed by setuptools-scm
 
       - name: Set caches
-        if: "${{ contains(matrix.tox_env, 'lint') }}"
+        if: "${{ contains(matrix.passed_name, 'lint') }}"
         uses: actions/cache@v3
         with:
           path: ~/.cache/pre-commit
-          key: ${{ matrix.name || matrix.tox_env }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          key: ${{ matrix.name || matrix.passed_name }}-${{ hashFiles('.pre-commit-config.yaml') }}
 
-      - name: Set up Python ${{ matrix.python-version || '3.9' }}
+      - name: Set up Python ${{ matrix.python_version || '3.9' }}
         uses: actions/setup-python@v4
         with:
           cache: pip
-          python-version: ${{ matrix.python-version || '3.9' }}
+          python-version: ${{ matrix.python_version || '3.9' }}
 
       - name: Install tox
         run: |
@@ -73,24 +73,24 @@ jobs:
       - name: Log installed dists
         run: python3 -m pip freeze --all
 
-      - name: Initialize tox envs ${{ matrix.tox_env }}
-        run: python3 -m tox --notest --skip-missing-interpreters false -vv -e ${{ matrix.tox_env }}
+      - name: Initialize tox envs ${{ matrix.passed_env }}
+        run: python3 -m tox --notest --skip-missing-interpreters false -vv -e ${{ matrix.passed_name }}
         timeout-minutes: 5 # average is under 1, but macos can be over 3
 
       # sequential run improves browsing experience (almost no speed impact)
-      - name: tox -e ${{ matrix.tox_env }}
-        run: python3 -m tox -e ${{ matrix.tox_env }}
+      - name: tox -e ${{ matrix.passed_name }}
+        run: python3 -m tox -e ${{ matrix.passed_name }}
 
       - name: Combine coverage data
-        if: ${{ startsWith(matrix.tox_env, 'py') }}
+        if: ${{ startsWith(matrix.passed_name, 'py') }}
         # produce a single .coverage file at repo root
         run: tox -e coverage
 
       - name: Upload coverage data
-        if: ${{ startsWith(matrix.tox_env, 'py') }}
+        if: ${{ startsWith(matrix.passed_name, 'py') }}
         uses: codecov/codecov-action@v3
         with:
-          name: ${{ matrix.tox_env }}
+          name: ${{ matrix.passed_name }}
           fail_ci_if_error: false # see https://github.com/codecov/codecov-action/issues/598
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true # optional (default = false)
