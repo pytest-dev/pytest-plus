@@ -26,6 +26,13 @@ We discourage defining this inside places like `tox.ini` because when a
 developer runs tests, they are likely to endup running a different number of
 tests. Also, this feature makes no sense if you try to mention a specific test.
 
+## Avoiding duplicate test function names
+
+While pytest allows users to have the same test function names in different
+files, that makes it harder to identify and copy/paste the test name in order
+to reproduce the failure locally. That is why this plugin forces its users to
+avoid having the same function name anywhere in the tested project.
+
 ## Release process
 
 Releases are triggered from [GitHub Releases](https://github.com/pytest-dev/pytest-plus/releases)

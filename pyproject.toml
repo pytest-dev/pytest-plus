@@ -54,6 +54,13 @@ test = ["coverage>=7.0.0", "pytest-html"]
 [project.entry-points.pytest11]
 plus = "pytest_plus"
 
+[tool.coverage.run]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+fail_under = 81
+omit = ["tests/*"]
+
 [tool.pytest.ini_options]
 addopts = "-p no:flaky"
 
