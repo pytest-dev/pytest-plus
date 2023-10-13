@@ -20,45 +20,48 @@ env:
   PY_COLORS: 1
 
 jobs:
-  pre:
-    name: pre
+  prepare:
+    name: prepare
     runs-on: ubuntu-22.04
     outputs:
       matrix: ${{ steps.generate_matrix.outputs.matrix }}
     steps:
       - name: Determine matrix
         id: generate_matrix
-        uses: coactions/matrix@main
+        uses: coactions/dynamic-matrix@v1
         with:
           min_python: "3.9"
+          max_python: "3.12"
           other_names: |
             lint
             pkg
             devel
   build:
-    name: ${{ matrix.name || matrix.passed_name || '?' }}
-    needs: pre
+    name: ${{ matrix.name }}
     runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
+    needs:
+      - prepare
     defaults:
       run:
         shell: ${{ matrix.shell || 'bash'}}
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.pre.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
     env:
       PYTEST_REQPASS: 1
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # needed by setuptools-scm
 
-      - name: Set caches
-        if: "${{ contains(matrix.passed_name, 'lint') }}"
+      - name: Set pre-commit cache
         uses: actions/cache@v3
+        if: ${{ matrix.passed_name == 'lint' }}
         with:
-          path: ~/.cache/pre-commit
-          key: ${{ matrix.name || matrix.passed_name }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          path: |
+            ~/.cache/pre-commit
+          key: pre-commit-${{ matrix.name || matrix.passed_name }}-${{ hashFiles('.pre-commit-config.yaml') }}
 
       - name: Set up Python ${{ matrix.python_version || '3.9' }}
         uses: actions/setup-python@v4
@@ -74,7 +77,7 @@ jobs:
       - name: Log installed dists
         run: python3 -m pip freeze --all
 
-      - name: Initialize tox envs ${{ matrix.passed_env }}
+      - name: Initialize tox envs ${{ matrix.passed_name }}
         run: python3 -m tox --notest --skip-missing-interpreters false -vv -e ${{ matrix.passed_name }}
         timeout-minutes: 5 # average is under 1, but macos can be over 3
 
@@ -131,7 +134,7 @@ jobs:
           jobs: ${{ toJSON(needs) }}
 
       - name: Check out src from Git
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Notify repository owners about lint change affecting them
         uses: sourcegraph/codenotify@v0.6.4

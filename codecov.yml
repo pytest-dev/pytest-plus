@@ -1,0 +1,6 @@
+---
+comment: false
+coverage:
+  range: 88..100
+  status:
+    patch: false
