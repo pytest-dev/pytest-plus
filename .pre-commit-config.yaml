@@ -8,7 +8,7 @@ repos:
       - id: check-useless-excludes
   - repo: https://github.com/pre-commit/mirrors-prettier
     # keep it before yamllint
-    rev: v3.0.0-alpha.4
+    rev: v3.0.3
     hooks:
       - id: prettier
         always_run: true
@@ -17,16 +17,16 @@ repos:
           - prettier-plugin-toml
           - prettier-plugin-sort-json
   - repo: https://github.com/PyCQA/doc8.git
-    rev: v1.1.0
+    rev: v1.1.1
     hooks:
       - id: doc8
   - repo: https://github.com/python/black
-    rev: 22.12.0
+    rev: 23.9.1
     hooks:
       - id: black
         language_version: python3
   - repo: https://github.com/pre-commit/pre-commit-hooks.git
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
@@ -36,20 +36,20 @@ repos:
       - id: check-merge-conflict
       - id: debug-statements
   - repo: https://github.com/pycqa/flake8.git
-    rev: 6.0.0
+    rev: 6.1.0
     hooks:
       - id: flake8
         additional_dependencies:
           - flake8-black
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.28.0
+    rev: v1.32.0
     hooks:
       - id: yamllint
         files: \.(yaml|yml)$
         types: [file, yaml]
         entry: yamllint --strict
   - repo: https://github.com/codespell-project/codespell.git
-    rev: v2.2.2
+    rev: v2.2.6
     hooks:
       - id: codespell
         name: codespell
@@ -61,10 +61,10 @@ repos:
         require_serial: false
         additional_dependencies: []
   - repo: https://github.com/jazzband/pip-tools
-    rev: 6.12.1
+    rev: 7.3.0
     hooks:
       - id: pip-compile
-        entry: pip-compile --resolver=backtracking -q --no-annotate --output-file=requirements.txt pyproject.toml --extra test --strip-extras
+        entry: pip-compile -q --no-annotate --output-file=requirements.txt pyproject.toml --extra test --strip-extras
         language: python
         files: ^(requirements\.txt|pyproject\.toml)$
         alias: deps
@@ -72,7 +72,7 @@ repos:
         additional_dependencies:
           - pip>=22.3.1
       - id: pip-compile
-        entry: pip-compile --resolver=backtracking -q --no-annotate --output-file=requirements.txt pyproject.toml --extra test --strip-extras --upgrade
+        entry: pip-compile -q --no-annotate --output-file=requirements.txt pyproject.toml --extra test --strip-extras --upgrade
         language: python
         files: ^(requirements\.txt|pyproject\.toml)$
         alias: up
