@@ -3,6 +3,7 @@
 import os
 
 import pytest
+from _pytest.terminal import TerminalReporter
 
 
 def pytest_sessionfinish(session: pytest.Session) -> None:
@@ -13,6 +14,8 @@ def pytest_sessionfinish(session: pytest.Session) -> None:
     that functionality is ignored.
     """
     terminalreporter = session.config.pluginmanager.get_plugin("terminalreporter")
+    if not isinstance(terminalreporter, TerminalReporter):
+        raise TypeError
     req_passed = int(os.environ.get("PYTEST_REQPASS", "0"))
     if req_passed and not session.config.option.collectonly:
         passed = 0
@@ -27,7 +30,7 @@ def pytest_sessionfinish(session: pytest.Session) -> None:
             session.exitstatus = 1
 
 
-@pytest.hookimpl(tryfirst=True)
+@pytest.hookimpl(tryfirst=True)  # type: ignore[misc,unused-ignore]
 def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
     """Ensure testing fails if tests have duplicate names."""
     errors = []
