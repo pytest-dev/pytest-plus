@@ -1,13 +1,11 @@
 """PyTest Config File."""
 
-from __future__ import print_function
 import os
-from typing import List
 
 import pytest
 
 
-def pytest_sessionfinish(session, exitstatus):
+def pytest_sessionfinish(session: pytest.Session) -> None:
     """Assure passed test match PYTEST_REQPASS value.
 
     Assures that pytest returns an error code when the number of expected passed
@@ -23,16 +21,15 @@ def pytest_sessionfinish(session, exitstatus):
                 passed += 1
         if passed != req_passed:
             terminalreporter.write_line(
-                "ERROR: {} passed test but expected number was {}. "
-                " If that is expected please update PYTEST_REQPASS value for the failed job.".format(
-                    passed, req_passed
-                )
+                f"ERROR: {passed} passed test but expected number was {req_passed}. "
+                " If that is expected please update PYTEST_REQPASS value for the failed job.",
             )
             session.exitstatus = 1
 
 
 @pytest.hookimpl(tryfirst=True)
-def pytest_collection_modifyitems(items: List[pytest.Item]) -> None:
+def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
+    """Ensure testing fails if tests have duplicate names."""
     errors = []
     names = {}
     for item in items:
@@ -44,6 +41,7 @@ def pytest_collection_modifyitems(items: List[pytest.Item]) -> None:
             if error not in errors:
                 errors.append(error)
     if errors:
+        msg = f"Failed run due to following issues being identified:\n{os.linesep.join(errors)}"
         raise pytest.UsageError(
-            f"Failed run due to following issues being identified:\n{os.linesep.join(errors)}"
+            msg,
         )
