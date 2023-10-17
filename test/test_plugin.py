@@ -28,4 +28,4 @@ def test_duplicate_test_name(pytester: pytest.Pytester) -> None:
         result.errlines[1]
         == "Duplicate test name 'test_a', found at test_two.py:0 and test_one.py:0"
     )
-    assert result.ret == 4
+    assert result.ret == pytest.ExitCode.USAGE_ERROR
