@@ -41,7 +41,7 @@ classifiers = [
   "Topic :: Utilities",
 ]
 keywords = ["testing", "pytest", "plugin"]
-dependencies = ["pytest>=6.0.1"]
+dependencies = ["pytest>=7.4.2"]
 
 [project.urls]
 homepage = "https://github.com/pytest-dev/pytest-plus"
@@ -55,14 +55,21 @@ test = ["coverage>=7.0.0", "pytest-html"]
 plus = "pytest_plus"
 
 [tool.coverage.run]
-omit = ["tests/*"]
+omit = ["test/*", "/private/var/folders/*", "/tmp/*"]
 
 [tool.coverage.report]
-fail_under = 81
-omit = ["tests/*"]
+fail_under = 100
+omit = ["test/*", "/private/var/folders/*", "/tmp/*"]
+show_missing = true
 
 [tool.pytest.ini_options]
 addopts = "-p no:flaky"
+
+filterwarnings = [
+  "error",
+  "ignore:ast.(Str|Num|NameConstant) is deprecated and will be removed in Python 3.14:DeprecationWarning:_pytest.assertion.rewrite",
+  "ignore:Attribute s is deprecated and will be removed in Python 3.14:DeprecationWarning:_pytest.assertion.rewrite",
+]
 
 [tool.ruff]
 ignore = [
