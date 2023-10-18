@@ -18,7 +18,7 @@ def get_max_test_id_length() -> int:
 def get_test_id_regex() -> None | re.Pattern[str]:
     """Return regex to use for checking test ids."""
     if int(os.environ.get("PYTEST_CHECK_TEST_ID_REGEX", "1")):
-        return re.compile(r"^\w+$")
+        return re.compile(r"^[\w_\-\.]+$")
     return None
 
 
