@@ -33,6 +33,20 @@ files, that makes it harder to identify and copy/paste the test name in order
 to reproduce the failure locally. That is why this plugin forces its users to
 avoid having the same function name anywhere in the tested project.
 
+You can disable this check by defining `PYTEST_CHECK_TEST_DUPLICATE=0`.
+
+## Avoiding problematic test identifiers
+
+This plugin will raise errors when it encounters test IDs that are either too
+long or that contain unsafe characters. While pytest is very flexible in allowing
+a wide range of test IDs, using these does make development harder as it prevents
+people from doing a copy/paste with failed test and pasting in in their terminal
+to reproduce the failed test locally.
+
+You can disable regex check by defining `PYTEST_CHECK_TEST_ID_REGEX=0`.
+
+You can disable the length check by defining `PYTEST_MAX_TEST_ID_LENGTH=0`.
+
 ## Release process
 
 Releases are triggered from [GitHub Releases](https://github.com/pytest-dev/pytest-plus/releases)
