@@ -60,7 +60,7 @@ def test_check_test_id(pytester: pytest.Pytester, rc: int, *, disable: bool) -> 
     result = pytester.runpytest_inprocess("--collect-only", p1)
     if not disable:
         assert (
-            "Test <Function test_a[invalid name]> has an id that does not match our safe pattern '^[\\w_\\-\\.]+$' for use with a terminal."
+            "Test <Function test_a[invalid name]> has an id that does not match our safe pattern '^[\\w_\\-\\.:]+$' for use with a terminal."
             in result.stderr.lines
         )
     assert result.ret == rc
