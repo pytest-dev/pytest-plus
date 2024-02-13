@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-  "setuptools >= 63.0.0", # required by pyproject+setuptools_scm integration
+  "setuptools >= 63.0.0",          # required by pyproject+setuptools_scm integration
   "setuptools_scm[toml] >= 7.0.5", # required for "no-local-version" scheme
 
 ]
@@ -15,7 +15,7 @@ description = "PyTest Plus Plugin :: extends pytest functionality"
 readme = "README.md"
 authors = [{ "name" = "Sorin Sbarnea", "email" = "sorin.sbarnea@gmail.com" }]
 maintainers = [
-  { "name" = "Sorin Sbarnea", "email" = "sorin.sbarnea@gmail.com" }
+  { "name" = "Sorin Sbarnea", "email" = "sorin.sbarnea@gmail.com" },
 ]
 license = { text = "MIT" }
 classifiers = [
