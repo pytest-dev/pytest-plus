@@ -72,7 +72,7 @@ def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
                     f"Test {item} has an id that does not match our safe pattern '{test_id_regex.pattern}' for use with a terminal.",
                 )
     if errors:
-        msg = f"Failed run due to following issues being identified:\n{os.linesep.join(errors)}"
+        msg = f"Failed run due to following issues being identified:\n{os.linesep.join(errors)}\nTotal errors found: {len(errors)}"
         raise pytest.UsageError(
             msg,
         )
