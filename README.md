@@ -47,6 +47,21 @@ You can disable regex check by defining `PYTEST_CHECK_TEST_ID_REGEX=0`.
 
 You can disable the length check by defining `PYTEST_MAX_TEST_ID_LENGTH=0`.
 
+## Prepare pytest log files for collection on CI
+
+As pytest log files are created on temp directory and some CI systems refuse
+to collect files from outside the current project, we do copy these files inside
+`$VIRTUAL_ENV/log`, same directory used by tox itself. To collect the logs on
+Github Actions, you only need a step like:
+
+```yaml
+- name: Archive logs
+  uses: actions/upload-artifact@v4
+  with:
+    name: logs-${{ matrix.name }}.zip
+    path: .tox/**/log/
+```
+
 ## Release process
 
 Releases are triggered from [GitHub Releases](https://github.com/pytest-dev/pytest-plus/releases)
