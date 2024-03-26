@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 
 import pytest
 from _pytest.terminal import TerminalReporter
@@ -44,6 +45,16 @@ def pytest_sessionfinish(session: pytest.Session) -> None:
                 " If that is expected please update PYTEST_REQPASS value for the failed job.",
             )
             session.exitstatus = 1
+
+    # If running under CI (Github Actions included) and inside a venv, do
+    # copy all pytest own logs inside $VIRTUAL_ENV/log, for collection.
+    venv = os.environ.get("VIRTUAL_ENV", "")
+    if os.environ.get("CI", "0") != "0" and venv:
+        shutil.copytree(
+            src=session.config._tmp_path_factory.getbasetemp(),  # type: ignore[attr-defined] # noqa: SLF001
+            dst=venv + "/log",
+            dirs_exist_ok=True,
+        )
 
 
 @pytest.hookimpl(tryfirst=True)  # type: ignore[misc,unused-ignore]
