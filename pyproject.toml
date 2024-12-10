@@ -33,9 +33,7 @@ description = "PyTest Plus Plugin :: extends pytest functionality"
 dynamic = ["version", "dependencies", "optional-dependencies"]
 keywords = ["testing", "pytest", "plugin"]
 license = {text = "MIT"}
-maintainers = [
-  {"email" = "sorin.sbarnea@gmail.com", "name" = "Sorin Sbarnea"}
-]
+maintainers = [{"email" = "sorin.sbarnea@gmail.com", "name" = "Sorin Sbarnea"}]
 name = "pytest-plus"
 readme = "README.md"
 # https://peps.python.org/pep-0621/#readme
@@ -58,7 +56,7 @@ show_missing = true
 omit = ["test/*", "/private/var/folders/*", "/tmp/*"]
 
 [tool.pytest.ini_options]
-addopts = "-p no:flaky"
+addopts = "-p no:flaky --showlocals"
 filterwarnings = [
   "error",
   "ignore:ast.(Str|Num|NameConstant) is deprecated and will be removed in Python 3.14:DeprecationWarning:_pytest.assertion.rewrite",
