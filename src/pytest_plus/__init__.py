@@ -1,4 +1,5 @@
 """PyTest Config File."""
+
 from __future__ import annotations
 
 import os
@@ -16,7 +17,7 @@ def get_max_test_id_length() -> int:
     return int(os.environ.get("PYTEST_MAX_TEST_ID_LENGTH", "60"))
 
 
-def get_test_id_regex() -> None | re.Pattern[str]:
+def get_test_id_regex() -> re.Pattern[str] | None:
     """Return regex to use for checking test ids."""
     if int(os.environ.get("PYTEST_CHECK_TEST_ID_REGEX", "1")):
         return re.compile(r"^[\w_\-\.:]+$")

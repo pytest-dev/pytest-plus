@@ -1,23 +1,12 @@
 [build-system]
+build-backend = "setuptools.build_meta"
 requires = [
   "setuptools >= 63.0.0", # required by pyproject+setuptools_scm integration
-  "setuptools_scm[toml] >= 7.0.5", # required for "no-local-version" scheme
-
+  "setuptools_scm[toml] >= 7.0.5" # required for "no-local-version" scheme
 ]
-build-backend = "setuptools.build_meta"
 
 [project]
-# https://peps.python.org/pep-0621/#readme
-requires-python = ">=3.10"
-dynamic = ["version"]
-name = "pytest-plus"
-description = "PyTest Plus Plugin :: extends pytest functionality"
-readme = "README.md"
-authors = [{ "name" = "Sorin Sbarnea", "email" = "sorin.sbarnea@gmail.com" }]
-maintainers = [
-  { "name" = "Sorin Sbarnea", "email" = "sorin.sbarnea@gmail.com" }
-]
-license = { text = "MIT" }
+authors = [{"email" = "sorin.sbarnea@gmail.com", "name" = "Sorin Sbarnea"}]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Environment :: Console",
@@ -38,52 +27,123 @@ classifiers = [
   "Topic :: Software Development :: Quality Assurance",
   "Topic :: Software Development :: Testing",
   "Topic :: System :: Systems Administration",
-  "Topic :: Utilities",
+  "Topic :: Utilities"
 ]
+description = "PyTest Plus Plugin :: extends pytest functionality"
+dynamic = ["version", "dependencies", "optional-dependencies"]
 keywords = ["testing", "pytest", "plugin"]
-dependencies = ["pytest>=7.4.2"]
-
-[project.urls]
-homepage = "https://github.com/pytest-dev/pytest-plus"
-repository = "https://github.com/pytest-dev/pytest-plus"
-changelog = "https://github.com/pytest-dev/pytest-plus/releases"
-
-[project.optional-dependencies]
-test = ["coverage>=7.0.0", "pytest-html"]
+license = {text = "MIT"}
+maintainers = [
+  {"email" = "sorin.sbarnea@gmail.com", "name" = "Sorin Sbarnea"}
+]
+name = "pytest-plus"
+readme = "README.md"
+# https://peps.python.org/pep-0621/#readme
+requires-python = ">=3.10"
 
 [project.entry-points.pytest11]
 plus = "pytest_plus"
 
-[tool.coverage.run]
-omit = ["test/*", "/private/var/folders/*", "/tmp/*"]
+[project.urls]
+changelog = "https://github.com/pytest-dev/pytest-plus/releases"
+homepage = "https://github.com/pytest-dev/pytest-plus"
+repository = "https://github.com/pytest-dev/pytest-plus"
 
 [tool.coverage.report]
 fail_under = 100
 omit = ["test/*", "/private/var/folders/*", "/tmp/*"]
 show_missing = true
 
+[tool.coverage.run]
+omit = ["test/*", "/private/var/folders/*", "/tmp/*"]
+
 [tool.pytest.ini_options]
 addopts = "-p no:flaky"
-
 filterwarnings = [
   "error",
   "ignore:ast.(Str|Num|NameConstant) is deprecated and will be removed in Python 3.14:DeprecationWarning:_pytest.assertion.rewrite",
-  "ignore:Attribute s is deprecated and will be removed in Python 3.14:DeprecationWarning:_pytest.assertion.rewrite",
+  "ignore:Attribute s is deprecated and will be removed in Python 3.14:DeprecationWarning:_pytest.assertion.rewrite"
 ]
 
 [tool.ruff]
+cache-dir = "./.cache/.ruff"
+fix = true
+# Same as Black.
+line-length = 88
+preview = true
+target-version = "py310"
+
+[tool.ruff.lint]
 ignore = [
+  "COM812", # conflicts with ISC001 on format
+  "CPY001", # missing-copyright-notice
   "D203", # incompatible with D211
   "D213", # incompatible with D212
   "E501", # we use black
+  "ERA001", # auto-removal of commented out code affects development and vscode integration
+  "INP001", # "is part of an implicit namespace package", all false positives
+  "ISC001", # conflicts with COM812 on format
+  "PLW2901", # PLW2901: Redefined loop variable
+  "RET504", # Unnecessary variable assignment before `return` statement
+  # temporary disabled until we fix them:
+  "ANN",
+  "ARG002", # Unused method argument (currently in too many places)
+  "D102", # Missing docstring in public method (currently in too many places)
+  "FBT001",
+  "FBT003",
+  "PLR",
+  "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+  "PERF203",
+  "PD011", # We are not using pandas, any .values attributes are unrelated
+  "PLW0603", # global lock file in cache dir
+  # part of preview rules:
+  "B909", # raise-missing-from
+  "DOC201", # docstring-missing-returns
+  "DOC402", # docstring-missing-summary
+  "DOC501", # docstring-missing-exception
+  "FURB101",
+  "FURB103",
+  "FURB110",
+  "FURB113",
+  "FURB118",
+  "PLC0415",
+  "PLC2701",
+  "PLW1641",
+  "S404"
 ]
 select = ["ALL"]
-target-version = "py39"
-# Same as Black.
-line-length = 88
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.per-file-ignores]
 "test/**/*.py" = ["S"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = [".config/requirements.in"]}
+optional-dependencies.test = {file = [".config/requirements-test.in"]}
+
 [tool.setuptools_scm]
+# To prevent accidental pick of mobile version tags such 'v6'
+git_describe_command = [
+  "git",
+  "describe",
+  "--dirty",
+  "--long",
+  "--tags",
+  "--match",
+  "v*.*"
+]
 local_scheme = "no-local-version"
+tag_regex = "^(?P<prefix>v)?(?P<version>\\d+[^\\+]*)(?P<suffix>.*)?$"
 write_to = "src/pytest_plus/_version.py"
+
+[tool.tomlsort]
+in_place = true
+sort_inline_tables = true
+sort_table_keys = true
+
+[tool.uv.pip]
+annotation-style = "line"
+custom-compile-command = "tox run -e deps"
+no-emit-package = ["pip", "resolvelib", "ruamel-yaml-clib", "uv"]
