@@ -1,0 +1,18 @@
+{
+  "recommendations": [
+    "Tyriar.sort-lines",
+    "charliermarsh.ruff",
+    "esbenp.prettier-vscode",
+    "hbenl.vscode-test-explorer",
+    "ms-python.isort",
+    "ms-python.mypy-type-checker",
+    "ms-python.pylint",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ryanluker.vscode-coverage-gutters",
+    "shardulm94.trailing-spaces",
+    "tamasfe.even-better-toml",
+    "timonwong.shellcheck",
+    "znck.grammarly"
+  ]
+}
