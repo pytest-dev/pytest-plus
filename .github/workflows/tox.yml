@@ -2,12 +2,15 @@
 name: tox
 
 on:
-  push: # only publishes pushes to the main branch to TestPyPI
-    branches: # any integration branch but not tag
+  push:
+    branches:
       - "main"
   pull_request:
     branches:
       - "main"
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_call:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
@@ -20,24 +23,26 @@ env:
 jobs:
   prepare:
     name: prepare
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.generate_matrix.outputs.matrix }}
     steps:
       - name: Determine matrix
         id: generate_matrix
-        uses: coactions/dynamic-matrix@v1
+        uses: coactions/dynamic-matrix@v4
         with:
-          min_python: "3.9"
-          max_python: "3.12"
+          min_python: "3.10"
+          max_python: "3.13"
+          default_python: "3.10"
           other_names: |
             lint
             pkg
             devel
+          platforms: linux,macos
   build:
     name: ${{ matrix.name }}
     environment: test
-    runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
+    runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
     needs:
       - prepare
     defaults:
@@ -53,56 +58,54 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # needed by setuptools-scm
+          submodules: true
 
       - name: Set pre-commit cache
         uses: actions/cache@v4
-        if: ${{ matrix.passed_name == 'lint' }}
+        if: ${{ matrix.name == 'lint' }}
         with:
           path: |
             ~/.cache/pre-commit
-          key: pre-commit-${{ matrix.name || matrix.passed_name }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          key: pre-commit-${{ matrix.name }}-${{ hashFiles('.pre-commit-config.yaml') }}
 
-      - name: Set up Python ${{ matrix.python_version || '3.9' }}
+      - name: Set up Python ${{ matrix.python_version || '3.10' }}
+        if: "!contains(matrix.shell, 'wsl')"
         uses: actions/setup-python@v5
         with:
           cache: pip
-          python-version: ${{ matrix.python_version || '3.9' }}
+          python-version: ${{ matrix.python_version || '3.10' }}
 
       - name: Install tox
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install --upgrade "tox>=4.0.8"
+          python3 -m pip install --upgrade "tox>=4.0.0" "tox-uv>=1.20.2" uv
 
       - name: Log installed dists
         run: python3 -m pip freeze --all
 
-      - name: Initialize tox envs ${{ matrix.passed_name }}
-        run: python3 -m tox --notest --skip-missing-interpreters false -vv -e ${{ matrix.passed_name }}
-        timeout-minutes: 5 # average is under 1, but macos can be over 3
+      - run: ${{ matrix.command }}
 
-      # sequential run improves browsing experience (almost no speed impact)
-      - name: tox -e ${{ matrix.passed_name }}
-        run: python3 -m tox -e ${{ matrix.passed_name }}
+      - run: ${{ matrix.command2 }}
+        if: ${{ matrix.command2 }}
 
-      - name: Combine coverage data
-        if: ${{ startsWith(matrix.passed_name, 'py') }}
-        # produce a single .coverage file at repo root
-        run: tox -e coverage
+      - run: ${{ matrix.command3 }}
+        if: ${{ matrix.command3 }}
 
-      - name: Upload coverage data
-        if: ${{ startsWith(matrix.passed_name, 'py') }}
-        uses: codecov/codecov-action@v4
-        with:
-          name: ${{ matrix.passed_name }}
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true # optional (default = false)
-          fail_ci_if_error: true
+      - run: ${{ matrix.command4 }}
+        if: ${{ matrix.command4 }}
+
+      - run: ${{ matrix.command5 }}
+        if: ${{ matrix.command5 }}
 
       - name: Archive logs
         uses: actions/upload-artifact@v4
         with:
           name: logs-${{ matrix.name }}.zip
-          path: .tox/**/log/
+          include-hidden-files: true
+          path: |
+            .tox/**/log/
+            .tox/**/.coverage*
+            .tox/**/coverage.xml
 
       - name: Report failure if git reports dirty status
         run: |
@@ -118,35 +121,64 @@ jobs:
     if: always()
     permissions:
       pull-requests: write # allow codenotify to comment on pull-request
-
+      id-token: write
+      checks: read
     needs:
       - build
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
+      # checkout needed for codecov action which needs codecov.yml file
+      - uses: actions/checkout@v4
+
+      - name: Set up Python # likely needed for coverage
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - run: pip3 install 'coverage>=7.5.1'
+
       - name: Merge logs into a single archive
         uses: actions/upload-artifact/merge@v4
         with:
           name: logs.zip
-          pattern: logs*.zip
-          delete-merged: true
+          include-hidden-files: true
+          pattern: logs-*.zip
+          # artifacts like py312.zip and py312-macos do have overlapping files
+          separate-directories: true
 
-      - name: Check codecov.io status
-        if: github.event_name == 'pull_request'
-        uses: coactions/codecov-status@main
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true # to allow rerunning this job
+        with:
+          name: logs.zip
+          path: .
+
+      - name: Check for expected number of coverage.xml reports
+        run: |
+          JOBS_PRODUCING_COVERAGE=6
+          if [ "$(find . -name coverage.xml | wc -l | bc)" -ne "${JOBS_PRODUCING_COVERAGE}" ]; then
+            echo "::error::Number of coverage.xml files was not the expected one (${JOBS_PRODUCING_COVERAGE}): $(find . -name coverage.xml |xargs echo)"
+            exit 1
+          fi
+
+      - name: Upload coverage data
+        uses: codecov/codecov-action@v5.1.2
+        with:
+          name: ${{ matrix.name }}
+          # verbose: true # optional (default = false)
+          fail_ci_if_error: true
+          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }} # cspell:ignore oidc
 
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@release/v1
         with:
           jobs: ${{ toJSON(needs) }}
 
-      - name: Check out src from Git
-        uses: actions/checkout@v4
-
-      - name: Notify repository owners about lint change affecting them
-        uses: sourcegraph/codenotify@v0.6.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # https://github.com/sourcegraph/codenotify/issues/19
-        continue-on-error: true
+      - name: Delete Merged Artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          include-hidden-files: true
+          delete-merged: true
+          pattern: logs-*.zip
