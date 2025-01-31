@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 # https://peps.python.org/pep-0621/#readme
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dynamic = ["version"]
 name = "pytest-plus"
 description = "PyTest Plus Plugin :: extends pytest functionality"
@@ -33,7 +33,7 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python",
   "Topic :: Software Development :: Quality Assurance",
   "Topic :: Software Development :: Testing",

@@ -75,7 +75,7 @@ repos:
         language: python
         files: ^(requirements\.txt|pyproject\.toml)$
         alias: deps
-        language_version: "3.9" # minimal we support officially
+        language_version: "3.10" # minimal we support officially
         additional_dependencies:
           - pip>=22.3.1
       - id: pip-compile
@@ -84,6 +84,6 @@ repos:
         files: ^(requirements\.txt|pyproject\.toml)$
         alias: up
         stages: [manual]
-        language_version: "3.9" # minimal we support officially
+        language_version: "3.10" # minimal we support officially
         additional_dependencies:
           - pip>=22.3.1
