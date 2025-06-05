@@ -56,7 +56,7 @@ Github Actions, you only need a step like:
 
 ```yaml
 - name: Archive logs
-  uses: actions/upload-artifact@v4
+  uses: coactions/upload-artifact@v4
   with:
     name: logs-${{ matrix.name }}.zip
     path: .tox/**/log/
