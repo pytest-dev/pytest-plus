@@ -55,7 +55,7 @@ jobs:
       PYTEST_REQPASS: 4
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0 # needed by setuptools-scm
           submodules: true
@@ -129,7 +129,7 @@ jobs:
 
     steps:
       # checkout needed for codecov action which needs codecov.yml file
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python # likely needed for coverage
         uses: actions/setup-python@v5
