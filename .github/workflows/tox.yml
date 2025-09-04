@@ -163,7 +163,7 @@ jobs:
           fi
 
       - name: Upload coverage data
-        uses: codecov/codecov-action@v5.4.3
+        uses: codecov/codecov-action@v5.5.1
         with:
           name: ${{ matrix.name }}
           # verbose: true # optional (default = false)
