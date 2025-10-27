@@ -139,7 +139,7 @@ jobs:
       - run: pip3 install 'coverage>=7.5.1'
 
       - name: Merge logs into a single archive
-        uses: actions/upload-artifact/merge@v4
+        uses: actions/upload-artifact/merge@v5
         with:
           name: logs.zip
           include-hidden-files: true
@@ -176,7 +176,7 @@ jobs:
           jobs: ${{ toJSON(needs) }}
 
       - name: Delete Merged Artifacts
-        uses: actions/upload-artifact/merge@v4
+        uses: actions/upload-artifact/merge@v5
         with:
           include-hidden-files: true
           delete-merged: true
