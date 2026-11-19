@@ -52,7 +52,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
     env:
-      PYTEST_REQPASS: 4
+      PYTEST_REQPASS: 14
 
     steps:
       - uses: actions/checkout@v4

@@ -11,17 +11,54 @@ import pytest
 from _pytest.terminal import TerminalReporter
 
 _logger = logging.getLogger(__name__)
-PYTEST_CHECK_TEST_DUPLICATE = int(os.environ.get("PYTEST_CHECK_TEST_DUPLICATE", "1"))
 
 
-def get_max_test_id_length() -> int:
+def pytest_addoption(parser: pytest.Parser) -> None:
+    """Register ini options."""
+    parser.addini(
+        "check_test_duplicate",
+        help="Warn when the same test function name appears in more than one file.",
+        type="bool",
+        default=True,
+    )
+    parser.addini(
+        "check_test_id_regex",
+        help="Warn when a test id contains characters that are awkward to paste in a terminal.",
+        type="bool",
+        default=True,
+    )
+    parser.addini(
+        "max_test_id_length",
+        help="Warn when a test id is longer than this many characters. Set to 0 to disable.",
+        default="60",
+    )
+    parser.addini(
+        "reqpass",
+        help="If set to a number greater than 0, fail the session unless exactly that many tests passed.",
+        default="0",
+    )
+
+
+def _env_or_ini_int(config: pytest.Config, env_name: str, ini_name: str) -> int:
+    if env_name in os.environ:
+        return int(os.environ[env_name])
+    return int(config.getini(ini_name))
+
+
+def _env_or_ini_bool(config: pytest.Config, env_name: str, ini_name: str) -> bool:
+    if env_name in os.environ:
+        return bool(int(os.environ[env_name]))
+    return bool(config.getini(ini_name))
+
+
+def get_max_test_id_length(config: pytest.Config) -> int:
     """Return max test id length."""
-    return int(os.environ.get("PYTEST_MAX_TEST_ID_LENGTH", "60"))
+    return _env_or_ini_int(config, "PYTEST_MAX_TEST_ID_LENGTH", "max_test_id_length")
 
 
-def get_test_id_regex() -> re.Pattern[str] | None:
+def get_test_id_regex(config: pytest.Config) -> re.Pattern[str] | None:
     """Return regex to use for checking test ids."""
-    if int(os.environ.get("PYTEST_CHECK_TEST_ID_REGEX", "1")):
+    if _env_or_ini_bool(config, "PYTEST_CHECK_TEST_ID_REGEX", "check_test_id_regex"):
         return re.compile(r"^[\w_\-\.:]+$")
     return None
 
@@ -36,7 +73,7 @@ def pytest_sessionfinish(session: pytest.Session) -> None:
     terminalreporter = session.config.pluginmanager.get_plugin("terminalreporter")
     if not isinstance(terminalreporter, TerminalReporter):
         raise TypeError  # pragma: no cover
-    req_passed = int(os.environ.get("PYTEST_REQPASS", "0"))
+    req_passed = _env_or_ini_int(session.config, "PYTEST_REQPASS", "reqpass")
     if req_passed and not session.config.option.collectonly:
         passed = 0
         for x in terminalreporter.stats.get("passed", []):
@@ -66,17 +103,24 @@ def pytest_sessionfinish(session: pytest.Session) -> None:
 
 
 @pytest.hookimpl(tryfirst=True)  # type: ignore[misc,unused-ignore]
-def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
+def pytest_collection_modifyitems(
+    config: pytest.Config, items: list[pytest.Item]
+) -> None:
     """Ensure testing fails if tests have duplicate names."""
     messages = []
     names = {}
-    max_test_id_length = get_max_test_id_length()
-    test_id_regex = get_test_id_regex()
+    max_test_id_length = get_max_test_id_length(config)
+    test_id_regex = get_test_id_regex(config)
+    check_duplicate = _env_or_ini_bool(
+        config,
+        "PYTEST_CHECK_TEST_DUPLICATE",
+        "check_test_duplicate",
+    )
     for item in items:
         base_name = item.name.split("[")[0]
         if base_name not in names:
             names[base_name] = item.location
-        elif item.location[:2] != names[base_name][:2] and PYTEST_CHECK_TEST_DUPLICATE:
+        elif item.location[:2] != names[base_name][:2] and check_duplicate:
             msg = f"Duplicate test name '{base_name}', found at {item.location[0]}:{item.location[1]} and {names[base_name][0]}:{names[base_name][1]}"
             if msg not in messages:
                 messages.append(msg)
