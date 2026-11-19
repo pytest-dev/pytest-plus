@@ -11,11 +11,22 @@ the following criteria:
 - Downgrade gracefully, meaning that if the plugin is removed, you will still
   be able to run pytest
 
+All of the options below can be set as environment variables or as pytest ini
+options (`pytest.ini`, or `[tool.pytest.ini_options]` in `pyproject.toml`). If
+the environment variable is set, it takes precedence over the ini value.
+
 ## PYTEST_REQPASS
 
 If you define environment variable `PYTEST_REQPASS=123` and at the end of the
 testing the number of passed tests is
 not exactly 123, pytest will return exit code 1.
+
+The same can be set with the `reqpass` ini option:
+
+```toml
+[tool.pytest.ini_options]
+reqpass = "123"
+```
 
 This feature is aimed for CI usage in order to prevent accidental skipping of
 some tests. We do expect users to define this variable within their own CI job
@@ -33,7 +44,8 @@ files, that makes it harder to identify and copy/paste the test name in order
 to reproduce the failure locally. That is why this plugin forces its users to
 avoid having the same function name anywhere in the tested project.
 
-You can disable this check by defining `PYTEST_CHECK_TEST_DUPLICATE=0`.
+You can disable this check by defining `PYTEST_CHECK_TEST_DUPLICATE=0` or by
+setting `check_test_duplicate = false` in the ini config.
 
 ## Avoiding problematic test identifiers
 
@@ -43,9 +55,11 @@ a wide range of test IDs, using these does make development harder as it prevent
 people from doing a copy/paste with failed test and pasting in in their terminal
 to reproduce the failed test locally.
 
-You can disable regex check by defining `PYTEST_CHECK_TEST_ID_REGEX=0`.
+You can disable regex check by defining `PYTEST_CHECK_TEST_ID_REGEX=0` or by
+setting `check_test_id_regex = false`.
 
-You can disable the length check by defining `PYTEST_MAX_TEST_ID_LENGTH=0`.
+You can disable the length check by defining `PYTEST_MAX_TEST_ID_LENGTH=0` or by
+setting `max_test_id_length = "0"`.
 
 ## Prepare pytest log files for collection on CI
 
